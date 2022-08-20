@@ -1,23 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState, useEffect } from "react";
+import Card from "./components/Card";
+import SearchBar from "./components/SearchBar";
+import Navbar from "./components/Navbar";
+import axios from "axios";
 
 function App() {
+  const [text, setText] = useState("");
+  const [adData, setAdData] = useState([]);
+
+  useEffect(() => {
+    if (text) {
+      async function getAds() {
+        const { data } = await axios.get("/api/ads", {
+          params: { search: text },
+        });
+
+        setAdData(data.data);
+      }
+      getAds();
+    } else {
+      setAdData("");
+    }
+  }, [text]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      <Navbar />
+      <SearchBar text={text} setText={setText} />
+      <div className='container flex flex-row flex-wrap align-center mx-auto'>
+        {adData.length > 0 && adData.map((ad) => <Card {...ad} />)}
+      </div>
     </div>
   );
 }
